@@ -4,7 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Domain;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Persistence;
 
 namespace API.Controllers
 {
@@ -12,27 +14,22 @@ namespace API.Controllers
     [Route("[controller]")]
     public class ValuesController : ControllerBase
     {
-        private static readonly string[] Summaries = new[]
+        public ValuesController(DataContext context)
         {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-        };
-
-        private readonly ILogger<ValuesController> _logger;
-
-        public ValuesController(ILogger<ValuesController> logger)
-        {
-            _logger = logger;
+            this.context = context;
         }
+        private readonly ILogger<ValuesController> _logger;
+        private readonly DataContext context;       
 
         [HttpGet]
-        public IEnumerable<Value> Get()
+        public async Task<ActionResult<IEnumerable<Value>>> Get()
         {
-            return new List<Value>();
+            return Ok(await this.context.Values.ToListAsync());
         }
         [HttpGet("{id}")]
-        public Value Get(int id)
+        public async Task<ActionResult<Value>> Get(int id)
         {
-            return new Value();
+            return Ok(await this.context.Values.FindAsync(id));
         }
     }
 }
